@@ -1,15 +1,15 @@
 {
   "name": "setup-aapt2",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "GitHub Action to set up AAPT2",
   "main": "dist/index.js",
-  "packageManager": "npm@11.16.0",
+  "packageManager": "npm@12.0.2",
   "engines": {
     "node": ">=24"
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "package": "ncc build src/main.ts --source-map --license licenses.txt --out dist",
+    "package": "esbuild src/main.ts --bundle --platform=node --target=node24 --outfile=dist/index.js",
     "all": "npm run build && npm run package",
     "dev": "tsc --watch",
     "lint": "eslint src/**/*.ts",
@@ -36,8 +36,8 @@
     "@actions/tool-cache": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.7.0",
-    "@vercel/ncc": "^0.38.4",
-    "typescript": "^6.0.3"
+    "@types/node": "^26.0.0",
+    "esbuild": "^0.28.1",
+    "typescript": "^7.0.0"
   }
 }

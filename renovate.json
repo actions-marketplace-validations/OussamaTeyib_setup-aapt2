@@ -4,17 +4,8 @@
   "extends": [
     "config:recommended"
   ],
+  "automerge": true,
   "labels": [
     "dependencies"
-  ],
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["minor", "patch", "pin"],
-      "automerge": true
-    },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "automerge": true
-    }
   ]
 }

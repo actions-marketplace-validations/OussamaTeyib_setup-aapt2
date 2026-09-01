@@ -19,13 +19,13 @@
 
 **setup-aapt2** is a GitHub Action that downloads AAPT2 from Google Maven and adds it to PATH. By default, it automatically fetches and installs the latest stable version; users can optionally pin a specific version.
 
-| Property     | Value           |
-| ------------ | --------------- |
-| Language     | TypeScript      |
-| Build system | npm / tsc / ncc |
-| Runtime      | Node.js 24      |
-| Version      | 1.0.1           |
-| License      | MIT             |
+| Property     | Value               |
+| ------------ | ------------------- |
+| Language     | TypeScript          |
+| Build system | npm / tsc / esbuild |
+| Runtime      | Node.js 24          |
+| Version      | 1.0.1               |
+| License      | MIT                 |
 
 ---
 
@@ -38,6 +38,7 @@ setup-aapt2/
 │   ├── workflows/
 │   │   ├── build.yml          # CI: build and validate dist/
 │   │   ├── release.yml        # CD: create GitHub releases
+|   |   ├── codeql.yml         # CI: Run static analysis
 │   │   └── test.yml           # Test the action on multiple platforms
 │   ├── CODE_OF_CONDUCT.md
 │   ├── CONTRIBUTING.md
@@ -49,6 +50,7 @@ setup-aapt2/
 ├── .gitattributes
 ├── action.yml                # GitHub Action metadata
 ├── package.json              # Node.js dependencies and scripts
+├── package-lock.json         # Locked dependency versions
 ├── tsconfig.json             # TypeScript configuration
 ├── renovate.json             # Dependency update automation
 ├── LICENSE
@@ -62,8 +64,8 @@ setup-aapt2/
 
 ### Prerequisites
 
-| Tool    | Version | 
-| ------- |-------- |
+| Tool    | Version |
+| ------- | ------- |
 | Node.js | >=24    |
 | npm     |         |
 
@@ -76,7 +78,7 @@ npm install
 # Build the project (TypeScript type checking)
 npm run build
 
-# Package the project (bundle with ncc)
+# Package the project (bundle with esbuild)
 npm run package
 
 # Build and package in one command
@@ -96,16 +98,16 @@ npm run format
 
 The build process uses:
 
-- **TypeScript** for type checking (`npm run build`)
-- **ncc** (Next.js Compiler) to compile and bundle `src/main.ts` into a single `dist/index.js` file
-- The `dist/` folder must be committed as GitHub Actions runs the compiled bundle directly
+- **TypeScript** for type checking (`npm run build`).
+- **esbuild** to compile and bundle `src/main.ts` into a single `dist/index.js` file.
+- The `dist/` folder must be committed as GitHub Actions runs the compiled bundle directly.
 
 Use `npm run build` for type checking only, `npm run package` for compilation and bundling, or `npm run all` for both steps.
 
 ### Dependencies
 
 - **Runtime dependencies**: `@actions/core`, `@actions/exec`, `@actions/io`, `@actions/tool-cache`
-- **Dev dependencies**: `@types/node`, `@vercel/ncc`, `typescript`
+- **Dev dependencies**: `@types/node`, `esbuild`, `typescript`
 
 ---
 
@@ -113,21 +115,21 @@ Use `npm run build` for type checking only, `npm run package` for compilation an
 
 ### TypeScript code (`src/`)
 
-- **Style**: Follow official TypeScript style and ESLint rules
-- Use `async/await` for asynchronous operations
-- Handle errors properly with try/catch blocks
-- Use meaningful variable and function names
-- Add JSDoc comments for public functions
+- **Style**: Follow official TypeScript style and ESLint rules.
+- Use `async/await` for asynchronous operations.
+- Handle errors properly with try/catch blocks.
+- Use meaningful variable and function names.
+- Add JSDoc comments for public functions.
 
 ### Configuration files
 
-- Use JSON for configuration files where possible
-- Follow standard naming conventions
+- Use JSON for configuration files where possible.
+- Follow standard naming conventions.
 
 ### Git
 
-- Always commit the `dist/` folder after building
-- Use conventional commit messages
+- Always commit the `dist/` folder after building.
+- Use conventional commit messages.
 
 ---
 
@@ -140,31 +142,42 @@ All workflows are defined in `.github/workflows/`.
 - Push to `main`
 - Push of a `v*.*.*` tag
 - Pull requests targeting `main`
+- Manual dispatch
 
 **Steps summary:**
 
-1. Check out code
-2. Set up Node.js 24
-3. Install dependencies (`npm ci`)
-4. Build the project (`npm run build`)
-5. Ensure `dist/` is up to date (fails if not committed)
+1. Check out code.
+2. Set up Node.js 24.
+3. Install dependencies.
+4. Build the project.
+5. Ensure `dist/` is up to date (fails if not committed).
 
 ### `test.yml` — triggered on
 
 - Push to `main`
 - Push of a `v*.*.*` tag
 - Pull requests targeting `main`
+- Manual dispatch
 
 **Steps summary:**
 
-1. Check out code
-2. Test the action on Ubuntu, macOS, and Windows
-3. Install AAPT2 with default and pinned versions
-4. Verify `aapt2 version` works
+1. Check out code.
+2. Test the action on Ubuntu, macOS, and Windows.
+3. Install AAPT2 with default and pinned versions.
+4. Verify `manifest-merger` works.
 
 ### `release.yml` — triggered on version tag push
 
 Creates a GitHub Release with generated release notes.
+
+### `codeql.yml` — triggered on
+
+- Push to `main`
+- Push of a `v*.*.*` tag
+- Pull requests targeting `main`
+- Manual dispatch
+
+Runs GitHub's CodeQL static analysis on `javascript-typescript`.
 
 ---
 
